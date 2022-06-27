@@ -1,0 +1,43 @@
+<div class="container-fluid p-0 overflow-hidden">
+    <div class="row h-100 g-0">
+
+        <div class="col d-flex align-items-center">
+
+            <div class="container-fluid p-5">
+                <div class="row">
+                    <div class="col" *ngIf="wizardStep == 1">
+                        <div class="logo text-center">
+                            <img src="/assets/logo.svg">
+                            <h4 class="mt-4">Welcome to the new way of working<br />with QEMU virtual machines</h4>
+                        </div>
+                        <div class="d-grid col-10 mx-auto my-5">
+                            <button class="btn py-3 btn-primary" (click)="next()">Next</button>
+                        </div>
+                    </div>
+                    <div class="col-8 mx-auto" *ngIf="wizardStep == 2">
+                        <form>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Where do you want your VMs to be stored?</label>
+                                <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="/path/to/VMs">
+                            </div>
+                        </form>
+                        <div class="d-grid col-8 mx-auto my-5">
+                            <button class="btn py-3 btn-primary" (click)="next()">Next</button>
+                        </div>
+                    </div>
+                    <div class="col" *ngIf="wizardStep == 3">
+                        <div class="logo text-center">
+                            <img src="/assets/logo.svg">
+                            <h4 class="mt-4">All done! You're ready to set up QEMU virtual machines now</h4>
+                        </div>
+                        <div class="d-grid col-10 mx-auto my-5">
+                            <button class="btn py-3 btn-primary" (click)="next()">Launch</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
