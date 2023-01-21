@@ -1,0 +1,16 @@
+{
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "[python]": {
+        "editor.codeLens": false
+    },
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingModuleSource": "none"
+    },
+    "python.formatting.autopep8Args": [
+        "--max-line-length=999999",
+        "--ignore",
+        "E402"
+    ]
+}
