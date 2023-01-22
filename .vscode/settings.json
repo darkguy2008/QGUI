@@ -6,7 +6,8 @@
         "editor.codeLens": false
     },
     "python.analysis.diagnosticSeverityOverrides": {
-        "reportMissingModuleSource": "none"
+        "reportMissingModuleSource": "none",
+        "reportMissingImports": "none"
     },
     "python.formatting.autopep8Args": [
         "--max-line-length=999999",

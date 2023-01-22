@@ -1,7 +1,8 @@
-import itertools
 import os
-import configparser
 from gi.repository import Gtk, Adw
+from configparser import ConfigParser
+from core.helpers import adw_clear_preferences_group, is_array_empty
+from core.manager import Manager
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -18,13 +19,13 @@ class MainWindow(Adw.ApplicationWindow):
 
     # Variables
     vm_list = []
-    config = configparser.ConfigParser
+    config = ConfigParser
 
     def __init__(self, app):
         super(MainWindow, self).__init__(application=app, title="QEMU GUI")
 
         # Read VMs directory
-        self.config = configparser.ConfigParser()
+        self.config = ConfigParser()
         self.config.read("qgui.conf")
 
         # Create main window
@@ -55,39 +56,39 @@ class MainWindow(Adw.ApplicationWindow):
         btn_add_vm = Gtk.Button(label="Add your first VM", halign=Gtk.Align.CENTER)
         btn_add_vm.add_css_class("suggested-action")
         status_widget.set_child(btn_add_vm)
+        # Apply element hierarchy
         self.no_vm_container.append(status_widget)
         self.scroll_content_box.append(self.no_vm_container)
         self.window.append(self.scroll_content)
 
     def update_content(self):
 
-        # Remove all elements
-        while (True):
-            child = self.vm_list_container_content.get_last_child()
-            if not isinstance(child, Gtk.Box):
-                self.vm_list_container_content.remove(child)
-            else:
-                break
+        adw_clear_preferences_group(self.vm_list_container_content)
 
-        # TODO: Improve (Ref: https://stackoverflow.com/a/55833259/1598811)
-        vm_path = self.config["paths"]["config"]
-        vm_list = os.scandir(vm_path)
-        if itertools.takewhile(vm_list, (dir(x) for x in itertools.count(1))):
-            self.no_vm_container.set_visible(False)
-            self.vm_list_container.set_visible(True)
-        else:
-            self.no_vm_container.set_visible(True)
-            self.vm_list_container.set_visible(False)
-
-        for dir in vm_list:
-            vm_files = os.scandir(dir.path)
-            for f in vm_files:
-                if ".conf" in f.name:
-                    self.vm_list.append(f.name)
-
+        self.vm_list = Manager().list_vms_in_folder(self.config["paths"]["config"])
         for vm in enumerate(self.vm_list):
-            action_row = Adw.ActionRow(title=vm[1])
+            action_row = Adw.ActionRow(title=vm[1].config["VM"]["Name"])
+            action_row.set_activatable(True)
+
             btn_play = Gtk.Button(valign=Gtk.Align.CENTER, icon_name="media-playback-start-symbolic")
             btn_play.add_css_class("flat")
+            btn_play.connect('clicked', self.do_launch_vm, vm[1].file, vm[1].config)
             action_row.add_suffix(btn_play)
+
+            img_next = Gtk.Image(valign=Gtk.Align.CENTER, icon_name="go-next-symbolic")
+            img_next.add_css_class("dim-label")
+            action_row.add_suffix(img_next)
+
             self.vm_list_container_content.add(action_row)
+
+        if is_array_empty(self.vm_list):
+            self.no_vm_container.set_visible(True)
+            self.vm_list_container.set_visible(False)
+        else:
+            self.no_vm_container.set_visible(False)
+            self.vm_list_container.set_visible(True)
+
+    def do_launch_vm(self, widget, *data):
+        file: os.DirEntry = data[0]
+        config: ConfigParser = data[1]
+        Manager().launch_vm(file, config)
